@@ -2,7 +2,7 @@ using EventHub.Models;
 
 namespace EventHub.Services;
 
-public class EventService
+public class EventService : IEventService
 {
     private readonly List<Event> _events =
     [
