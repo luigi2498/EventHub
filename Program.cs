@@ -1,18 +1,23 @@
+using EventHub.Models;
+using EventHub.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-var events = new List<Event>
+// Services.
+builder.Services.AddSingleton<EventService>();
+
+var app = builder.Build();  // App Initializer.
+
+// Logging middleware
+app.Use(async (context, next) =>
 {
-    new Event(1, "Tech Meetup", "Guadalajara", new DateTime(2026, 8, 18)),
-    new Event(2, "Hackaton", "Mexico City", new DateTime(2026, 8, 24)),
-    new Event(3, "Team Building", "Monterrey", new DateTime(2026, 8, 26)),
-};
+    Console.WriteLine($"Incoming request: {context.Request.Method} {context.Request.Path}");
+    await next();
+    Console.WriteLine($"Response sent: {context.Response.StatusCode}");
+});
 
-var app = builder.Build();
+// Routes (DI).
+app.MapGet("/events", (EventService eventService) => eventService.GetAllEvents());
 
-// Routes.
-app.MapGet("/events", () => events);
-
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.Run();
-
-record Event(int Id, string Name, string Location, DateTime Date);
